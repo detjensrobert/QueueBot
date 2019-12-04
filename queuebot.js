@@ -13,7 +13,7 @@ const { prefix, middlemanRoleID } = require('./config.json')
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-	console.log("[STARTUP] Adding command " + file);
+	console.log("[ START ] Adding command " + file);
 	const command = require("./commands/" + file);
 	client.commands.set(command.name, command);
 }
@@ -22,7 +22,7 @@ const cooldowns = new Discord.Collection();
 
 
 client.once('ready', () => {
-	console.log(`[STARTUP] Ready.`);
+	console.log(`[ START ] Ready.`);
 });
 
 client.on('message', message => {
@@ -37,7 +37,7 @@ client.on('message', message => {
 	if (message.channel.type !== "text") { return; }
 
 	// turn message into array
-	const args = message.content.slice(prefix.length).split(/ +/);
+	const args = message.content.trim().slice(prefix.length).split(/ +/);
 	
 	// pull first word (the command) out
 	const commandName = args.shift().toLowerCase();

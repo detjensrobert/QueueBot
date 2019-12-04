@@ -5,12 +5,11 @@ module.exports = {
 	aliases: ['setinfo'],
 	
 	usage: '<option> <value>',
-	description: 'Sets your queue display info for the join message. <option> can be one of: `friendcode`, `ign`, `profilename`',
+	description: 'Sets your queue display info for the join message. \n<option> can be one of: `friendcode`, `ign`, `profilename`.',
 	
 	cooldown: 5,
 	args: 2,
 	
-	// command invocation
 	execute (message, args) {
 		console.log("SET");
 	}

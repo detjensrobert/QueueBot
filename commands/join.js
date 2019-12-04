@@ -8,7 +8,7 @@ module.exports = {
 	description: 'Adds you to the specified queue, if it exists.',
 	
 	cooldown: 5,
-	args: 2,
+	args: 1,
 	
 	execute (message, args) {
 		console.log("JOIN");

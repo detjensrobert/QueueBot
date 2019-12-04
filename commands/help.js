@@ -1,12 +1,12 @@
-const { prefix, embedColor } = require('../config.json');
+const { prefix, embedColor, middlemanRoleID } = require('../config.json');
 const Discord = require('discord.js');
 
 module.exports = {
 	
 	name: 'help',
-	aliases: ['?'],
+	aliases: ['?', 'h'],
 	
-	description: 'Show this list of commands',
+	description: 'Shows this list of commands.',
 	
 	cooldown: 5,
 	
@@ -21,8 +21,9 @@ module.exports = {
 		
 		
 		commands.forEach((cmd) => {
-			//~ message.member.roles.some(r => ["Admin"].includes(r.name))
-			if (!(cmd.adminOnly && !(message.guild && message.member.hasPermission('MANAGE_GUILD')))) {
+			
+			// only show middleman-restricted commands if in a server and has the middleman role
+			if ( !cmd.mmOnly || (cmd.mmOnly && message.guild && message.member.roles.has(middlemanRoleID)) ) {
 				let usage_str = "Usage: `" + prefix+cmd.name;
 			
 				if (cmd.usage) {
