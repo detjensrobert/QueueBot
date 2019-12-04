@@ -36,8 +36,19 @@ Queue bot for Discord, tentatively written for the [Pokemon Sword & Shield Disco
 Main file is `queuebot.js`. `npm start` will start the bot.
 
 Bot token goes in `token.json`. Create if not present:
-```
+```json
 {
 	"token": "TOKEN HERE"
 }
 ```
+
+MongoDB settings go in `mongodb_config.json`. Create if not present:
+```json
+{
+	host: "HOSTNAME",
+	user: "USERNAME",
+	pass: "PASSWORD",
+	name: "DATABASE NAME"
+}
+```
+
