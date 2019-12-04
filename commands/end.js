@@ -34,7 +34,7 @@ module.exports = {
 		}
 		
 		//delete channel
-		let channelID = findarr[0].channelID
+		let channelID = findarr[0].channelID;
 		message.guild.channels.get(channelID).delete();
 		
 		//delete from database

@@ -4,9 +4,9 @@ module.exports = {
 	name: 'set',
 	aliases: ['setinfo'],
 	
-	usage: 'fc (SW-)XXXX-XXXX-XXXX / ign <name> / switch <Switch profile name>',
+	usage: 'profile <Switch profile name> / ign <name> / fc (SW-)XXXX-XXXX-XXXX',
 	description: 'Sets your queue display info for the join queue message.\
-	\nEx: `Position: 5 | Switch Profile: Bagels | IGN: Bagels | Friendcode: SW-1234-5678-9000`',
+	\nEx.: `Position: 5 | Switch Profile: Bagels | IGN: Bagels | Friendcode: SW-1234-5678-9000`',
 	
 	cooldown: 5,
 	
@@ -14,6 +14,8 @@ module.exports = {
 				
 		const option = args.shift();
 		const value = args.join(' ');
+		
+		console.log("[ INFO ] Updating userdata for user " + message.author.id);
 		
 		if (value.length == 0) {
 			let reply = `🚫 I don't understand what you're trying to set.`;
@@ -25,7 +27,7 @@ module.exports = {
 		switch (option) {
 			case 'fc':
 				//if not a valid code
-				if ( !(fc.match(/(SW-)?[0-9]{3}-[0-9]{3}-[0-9]{3}/) )) {
+				if ( !(value.match(/(SW-)?[0-9]{3}-[0-9]{3}-[0-9]{3}/) )) {
 					let reply = `🚫 I dont't understand this friendcode.\nIs it formatted correctly?`
 						+ `\n **Usage:** \`${prefix}${this.name} fc (SW-)####-####-#### \``;
 				}
@@ -35,7 +37,7 @@ module.exports = {
 				
 				updated = "IGN";
 				break;
-			case 'switch':
+			case 'profile':
 				updated = "Switch profile name";
 				break;
 			default:
@@ -45,8 +47,10 @@ module.exports = {
 		}
 		
 		const userdataDB = db.collection('userdata');
-	
-		userdataDB.updateOne({ userID: message.author.id }, { $set: {option: value} });
+		
+		userdataDB.updateOne({ userID: message.author.id }, { $set: {option: value, userID: message.author.id} }, {upsert: true});
+		
+		console.log("[ INFO ]  > "+updated+" set to " + value);
 		
 		message.channel.send("✅ "+updated+" set!");
 		

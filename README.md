@@ -16,9 +16,9 @@ Queue bot for Discord, tentatively written for the [Pokemon Sword & Shield Disco
 
 `Position: ## | Switch Profile Name: ## | IGN: ## | Friend Code: ## `
 
-- `!queue set <option> <value>`
+- `!queue set profile <Switch profile name> / ign <name> / fc (SW-)XXXX-XXXX-XXXX`
 
-	Users can set their profile data for the above information. `<option>` can be one of the following: `friendcode`, `ign`,`profilename`
+	Users can set their profile data for the above information.
 
 - `!queue end <name>`
 
