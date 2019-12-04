@@ -29,6 +29,10 @@ Queue bot for Discord, tentatively written for the [Pokemon Sword & Shield Disco
 - `!queue help`
 
 	DMs a help message to the user.
+	
+- `!queue list`
+
+	Lists currently active queues, their channels, and open seats.
 
 ------------
 
@@ -46,10 +50,8 @@ MongoDB settings go in `mongodb_config.json`. Create if not present:
 ```json
 {
 	"host": "HOSTNAME",
-	"port": "27107 (default)"
 	"user": "USERNAME",
 	"pass": "PASSWORD",
-	"name": "DATABASE NAME"
 }
 ```
-
+The bot will use collections `queues` and `userdata`.

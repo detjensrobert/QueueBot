@@ -10,7 +10,12 @@ module.exports = {
 	cooldown: 5,
 	args: 1,
 	
-	execute: async (message, args) => {
-		console.log("JOIN");
+	execute: async (message, args, db) => {
+		
+		const name = args[0];
+		
+		
+		
+		
 	}
 }

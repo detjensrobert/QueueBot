@@ -9,9 +9,7 @@ module.exports = {
 	
 	cooldown: 5,
 	args: 0,
-	
-	mmOnly: true,
-	
+		
 	execute: async (message, args, db) => {
 		
 		console.log("[ INFO ] Listing queues.");

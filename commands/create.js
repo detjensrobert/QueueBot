@@ -6,8 +6,8 @@ module.exports = {
 	name: 'create',
 	aliases: ['createqueue', 'makequeue', 'start'],
 	
-	usage: '<name> <length>',
-	description: 'Creates new queue & channel named <name> with a capacity of <length>.',
+	usage: '<queue-name> <length>',
+	description: 'Creates new queue & channel named <queue-name> with a capacity of <length>.',
 	
 	cooldown: 5,
 	args: 2,
@@ -18,30 +18,22 @@ module.exports = {
 		const name = args[0];
 		const length = parseInt(args[1]);
 		
-		const queueDB = db.collection('queues');
-		
 		if (isNaN(length)) {
-			let reply = `🚫 Queue length needs to be a number.`;
-
-			if (this.usage) {
-				reply += `\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
-			}
-
+			let reply = `🚫 Queue length needs to be a number.`
+				+`\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
 			return message.reply(reply);
 		}
 		
 		// limit name length to 25 characters
 		if (name.length > 25) {
-			let reply = `🚫 Name is too long! Max 25 chars.`;
-
-			if (this.usage) {
-				reply += `\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
-			}
-
+			let reply = `🚫 Name is too long! Max 25 chars.`
+				+`\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
 			return message.reply(reply);
 		}
 		
 		console.log(`[ INFO ] Creating queue with name "${name}" and length ${length}`);
+		
+		const queueDB = db.collection('queues');
 		
 		
 		//look for name in db to see if already used
