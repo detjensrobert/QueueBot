@@ -1,6 +1,0 @@
-{
-	host: "HOSTNAME",
-	user: "USERNAME",
-	pw: "PASSWORD",
-	dbName: "DB NAME"
-}
