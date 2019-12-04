@@ -90,13 +90,12 @@ client.on('message', message => {
 	}
 	timestamps.set(message.author.id, now);
 	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-	queueDB
 	
 	
 	// ==============
 	// ACTUAL COMMAND CALL
 	try {
-		command.execute(message, args, queueDB);
+		command.execute(message, args, db);
 	} catch (error) {
 		console.error("[ ERROR ] " +error);
 		message.reply('there was an error trying to execute that command!');

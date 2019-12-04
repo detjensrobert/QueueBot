@@ -10,7 +10,7 @@ module.exports = {
 	cooldown: 5,
 	args: 1,
 	
-	execute (message, args) {
+	execute: async (message, args) => {
 		console.log("JOIN");
 	}
 }

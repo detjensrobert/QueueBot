@@ -4,7 +4,7 @@ module.exports = {
 	
 	// Command options
 	name: 'create',
-	aliases: ['createqueue', 'makequeue'],
+	aliases: ['createqueue', 'makequeue', 'start'],
 	
 	usage: '<name> <length>',
 	description: 'Creates new queue & channel named <name> with a capacity of <length>.',
@@ -21,7 +21,18 @@ module.exports = {
 		const queueDB = db.collection('queues');
 		
 		if (isNaN(length)) {
-			let reply = `Queue length needs to be a number.`;
+			let reply = `🚫 Queue length needs to be a number.`;
+
+			if (this.usage) {
+				reply += `\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
+			}
+
+			return message.reply(reply);
+		}
+		
+		// limit name length to 25 characters
+		if (name.length > 25) {
+			let reply = `🚫 Name is too long! Max 25 chars.`;
 
 			if (this.usage) {
 				reply += `\n**Usage:** \`${prefix}${this.name} ${this.usage}\``;
@@ -41,8 +52,8 @@ module.exports = {
 		
 		// if name already in use, abort
 		if ( findarr.length !== 0 ) {
-			message.channel.send("A channel with that name already exists! Please choose a different name.");
-			console.log("[ INFO ] Duplicate name. Aborting.");
+			message.channel.send("🚫 A queue with that name already exists! Please choose a different name.");
+			console.log("[ INFO ]  > Duplicate name. Aborting.");
 			return;
 		}
 		
@@ -50,16 +61,16 @@ module.exports = {
 		channelPromise = message.guild.createChannel("queue-"+name, {type: 'text', parent: queueCategoryID} )
 		queueChannel = await channelPromise;
 			
-		message.channel.send("Queue `"+name+"` created. Channel: " + queueChannel);
-		
-		console.log("[ INFO ] Channel "+ queueChannel.id +" created.");
-		
+		message.channel.send("✅ Queue `"+name+"` created. Channel: " + queueChannel);
+				
 		// add new queue to db
 		queueDB.insertOne({
 			channelID: queueChannel.id,
 			name: name,
 			length: length
 		});
+		
+		console.log("[ INFO ]  > Queue and channel created. ");
 		
 		return;
 	}
