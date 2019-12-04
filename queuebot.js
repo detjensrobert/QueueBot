@@ -8,6 +8,9 @@ const fs = require('fs');
 const { token } = require('./token.json')
 const { prefix, middlemanRoleID } = require('./config.json')
 
+// connect to mongodb server
+const MongoClient = require('mongodb').MongoClient;
+
 
 // import commands from dir
 client.commands = new Discord.Collection();

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/detjensrobert/QueueBot#readme",
   "dependencies": {
-    "discord.js": "^11.5.1"
+    "discord.js": "^11.5.1",
+    "mongodb": "^3.3.5"
   }
 }
