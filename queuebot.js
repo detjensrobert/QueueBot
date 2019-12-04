@@ -5,8 +5,8 @@ const client = new Discord.Client();
 const fs = require('fs');
 
 // grab settings from file
-const {token} = require('./token.json')
-const config = require('./config.json')
+const { token } = require('./token.json')
+const { prefix, middlemanRoleID } = require('./config.json')
 
 
 // import commands from dir
@@ -18,20 +18,23 @@ for (const file of commandFiles) {
 	client.commands.set(command.name, command);
 }
 
-
 const cooldowns = new Discord.Collection();
+
 
 client.once('ready', () => {
 	console.log(`[STARTUP] Ready.`);
 });
 
-client.on('message', msg => {
+client.on('message', message => {
+		
+	// ignore messages that dont start with a valid prefix
+	if (!message.content.startsWith(prefix)) { return; }
 	
 	// ignore bot messages
 	if (message.author.bot) { return; }
 	
-	// ignore messages that dont start with a valid prefix
-	if (!message.content.startsWith(prefix)) { return; }
+	// ignore DMs
+	if (message.channel.type !== "text") { return; }
 
 	// turn message into array
 	const args = message.content.slice(prefix.length).split(/ +/);
@@ -39,13 +42,30 @@ client.on('message', msg => {
 	// pull first word (the command) out
 	const commandName = args.shift().toLowerCase();
 
-	// if command specified does not exist
+	// get command from name or alias
 	const command = client.commands.get(commandName) || 
 					client.commands.find( cmd => cmd.aliases && cmd.aliases.includes(commandName) );
-
+	
 	if (!command) return;
 	
-		
+	
+	// == CHECK OPTIONS ==
+	
+	// if middleman only
+	if (command.mmOnly && !message.member.roles.has(middlemanRoleID)) { return; }
+	
+	if (command.args && args.length != command.args) {
+		let reply = `I don't understand.`;
+
+		if (command.usage) {
+			reply += `\n**Usage:** \`${prefix}${command.name} ${command.usage}\``;
+		}
+
+		return message.reply(reply);
+	}
+	
+	
+	
 	// == COOLDOWN HANDLING ==
 	if (!cooldowns.has(command.name)) {
 		cooldowns.set(command.name, new Discord.Collection());
@@ -58,11 +78,12 @@ client.on('message', msg => {
 
 		if (now < expirationTime) {
 			const timeLeft = (expirationTime - now) / 1000;
-			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s)!`);
 		}
 	}
 	timestamps.set(message.author.id, now);
 	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+	
 	
 	
 	// ==============
@@ -70,7 +91,7 @@ client.on('message', msg => {
 	try {
 		command.execute(message, args);
 	} catch (error) {
-		console.error(error);
+		console.error("[ ERROR ] " +error);
 		message.reply('there was an error trying to execute that command!');
 	}
 

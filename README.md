@@ -22,16 +22,20 @@ Queue bot for Discord, tentatively written for the [Pokemon Sword & Shield Disco
 
 - `!queue end <name>`
 
-	eletes queue and the associated channel.
+	Deletes queue and the associated channel.
 
 	Can only be called by authorised users, e.g. the middleman role.
+	
+- `!queue help`
+
+	DMs a help message to the user.
 
 ------------
 
 ### Setup
-Main file is `queuebot.js`
+Main file is `queuebot.js`. `npm start` will start the bot.
 
-Bot token goes in `token.json`
+Bot token goes in `token.json`. Create if not present:
 ```
 {
 	"token": "TOKEN HERE"
