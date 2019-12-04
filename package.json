@@ -1,0 +1,23 @@
+{
+  "name": "queuebot",
+  "version": "1.0.0",
+  "description": "Discord.js queue bot",
+  "main": "queuebot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node queuebot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/detjensrobert/QueueBot.git"
+  },
+  "author": "Robert Detjens / wholewheatbagels",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/detjensrobert/QueueBot/issues"
+  },
+  "homepage": "https://github.com/detjensrobert/QueueBot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  }
+}
