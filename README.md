@@ -45,10 +45,11 @@ Bot token goes in `token.json`. Create if not present:
 MongoDB settings go in `mongodb_config.json`. Create if not present:
 ```json
 {
-	host: "HOSTNAME",
-	user: "USERNAME",
-	pass: "PASSWORD",
-	name: "DATABASE NAME"
+	"host": "HOSTNAME",
+	"port": "27107 (default)"
+	"user": "USERNAME",
+	"pass": "PASSWORD",
+	"name": "DATABASE NAME"
 }
 ```
 

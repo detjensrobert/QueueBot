@@ -10,6 +10,10 @@ const { prefix, middlemanRoleID } = require('./config.json')
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
+const mgcfg = require('./mongodb_config.json'); // mgcfg == mongoconfig
+const mongoURL = `mongodb://${mgcfg.user}:${mgcfg.pass}@${mgcfg.host}/`;
+var db;
+console.log(mongoURL);
 
 
 // import commands from dir
@@ -86,13 +90,13 @@ client.on('message', message => {
 	}
 	timestamps.set(message.author.id, now);
 	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-	
+	queueDB
 	
 	
 	// ==============
 	// ACTUAL COMMAND CALL
 	try {
-		command.execute(message, args);
+		command.execute(message, args, queueDB);
 	} catch (error) {
 		console.error("[ ERROR ] " +error);
 		message.reply('there was an error trying to execute that command!');
@@ -100,4 +104,14 @@ client.on('message', message => {
 
 });
 
-client.login(token);
+// Login to database and Discord
+// but only login to Discord once server is ready
+MongoClient.connect(mongoURL, function (err, mongoclient) {
+	if (err) { throw err; }
+	
+	db = mongoclient.db(mgcfg.name);
+	
+	console.log("[ START ] MongoDB connected. Logging in to Discord...");
+	client.login(token);
+});
+
