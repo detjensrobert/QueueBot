@@ -10,22 +10,26 @@ const { prefix, middlemanRoleID } = require('./config.json')
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
-const mgcfg = require('./mongodb_config.json'); // mgcfg == mongoconfig
-const mongoURL = `mongodb://${mgcfg.user}:${mgcfg.pass}@${mgcfg.host}/`;
+const mdbconf = require('./mongodb_config.json'); // mdbconf == mongoconfig
+mdbconf.port = mdbconf.port || "27017";
+const mongoURL = `mongodb://${mdbconf.user}:${mdbconf.pass}@${mdbconf.host}:${mdbconf.port}/`;
 var db;
-console.log(mongoURL);
-
 
 // import commands from dir
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
 for (const file of commandFiles) {
-	console.log("[ START ] Adding command " + file);
 	const command = require("./commands/" + file);
 	client.commands.set(command.name, command);
+	
+	console.log("[ START ] Added command: " + command.name);
 }
 
 const cooldowns = new Discord.Collection();
+
+
+// =======
 
 
 client.once('ready', () => {
@@ -42,7 +46,7 @@ client.on('message', message => {
 	
 	// ignore DMs
 	if (message.channel.type !== "text") { return; }
-
+	
 	// turn message into array
 	const args = message.content.trim().slice(prefix.length).split(/ +/);
 	
@@ -104,13 +108,14 @@ client.on('message', message => {
 });
 
 // Login to database and Discord
-// but only login to Discord once server is ready
+// but only login to Discord once db is ready
+console.log(`[ START ] Connecting to MongoDB ( ${mongoURL} )`);
 MongoClient.connect(mongoURL, function (err, mongoclient) {
 	if (err) { throw err; }
 	
-	db = mongoclient.db(mgcfg.name);
+	db = mongoclient.db(mdbconf.dbname);
 	
-	console.log("[ START ] MongoDB connected. Logging in to Discord...");
+	console.log("[ START ] Logging in to Discord...");
 	client.login(token);
 });
 

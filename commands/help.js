@@ -1,7 +1,7 @@
 const { prefix, embedColor, middlemanRoleID } = require('../config.json');
 const Discord = require('discord.js');
 
-module.exports = {
+const options = {
 	
 	name: 'help',
 	aliases: ['?', 'h'],
@@ -9,50 +9,64 @@ module.exports = {
 	description: 'Shows this list of commands.',
 	
 	cooldown: 5,
+}
+/* == HELP MESSAGE FORMAT ==
+ * $NAME
+ * $DESCRIP
+ * Usage:
+ *   $USAGE_1
+ *   $USAGE_2
+ * Examples:
+ *   $EXAMPLE
+ */
+ 
+async function execute (message, args, db) {
 	
+	const commands = message.client.commands;
 	
-	execute(message, args) {
-		
-		const commands = message.client.commands;
-		
-		const embed = new Discord.RichEmbed()
-			.setAuthor("QueueBot Help" , message.client.user.displayAvatarURL)
-			.setColor(embedColor);
-		
-		
-		commands.forEach((cmd) => {
-			
-			// only show middleman-restricted commands if in a server and has the middleman role
-			if ( !cmd.mmOnly || (cmd.mmOnly && message.guild && message.member.roles.has(middlemanRoleID)) ) {
-				let usage_str = "Usage: `" + prefix+cmd.name;
-			
-				if (cmd.usage) {
-					usage_str += " " + cmd.usage;
-				}
-				
-				usage_str += "`";
-				
-				//~ if (cmd.aliases) {
-					//~ usage_str += "\nAliases: `" + prefix+cmd.name + "`";
-					//~ for (i = 1; i < cmd.aliases.length; i++) {
-						//~ usage_str += ", `" + prefix+cmd.aliases[i] + "`";
-					//~ }
-				//~ }
-				
-				embed.addField(`**${cmd.name}**: ${cmd.description}`, usage_str);
-				
-			}
-		})
+	const embed = new Discord.RichEmbed()
+		.setAuthor("QueueBot Help" , message.client.user.displayAvatarURL)
+		.setColor(embedColor);
+	
+	commands.forEach((cmd) => {
 
-		message.author.send({embed})
-			.then(() => {
-				if (message.channel.type === 'dm') return;
-				message.reply('help message sent to your DMs.');
-			})
-			.catch(error => {
-				console.error(`[ ERROR ] Could not send help DM to ${message.author.tag}.\n`, error);
-				message.reply('it seems like I can\'t send you the help message. Do you have DMs disabled?');
-			});
+		//               .. only show middleman-restricted commands if in a server and they have the middleman role
+		if ( !cmd.mmOnly || (cmd.mmOnly && message.guild && message.member.roles.has(middlemanRoleID)) ) { 
+		
+			let helpStr = cmd.description;
 			
-	},
-};
+			if (cmd.usage) {
+				helpStr += "\nUsage:"
+				
+				// if multiple usages
+				if (Array.isArray(cmd.usage)) {
+					cmd.usage.forEach( usage => helpStr += `\n- \`${prefix}${cmd.name} ${usage}\`` );
+				}
+				else {
+					helpStr += `\n- \`${prefix}${cmd.name} ${cmd.usage}\``;
+				}
+			}
+			
+			if (cmd.example) {
+				helpStr += "\nExamples:";
+				
+				// if multiple examples
+				if (Array.isArray(cmd.example)) {
+					cmd.example.forEach( example => helpStr += `\n- \`${prefix}${cmd.name} ${example}\`` );
+				}
+				else {
+					helpStr += `\n- \`${prefix}${cmd.name} ${cmd.example}\``;
+				}
+			}
+			
+			embed.addField(`**${cmd.name}**` + ( cmd.aliases ? ", " + cmd.aliases.join(", ") : "") , helpStr);
+			
+		}
+	});
+
+	message.channel.send({embed});
+		
+}
+
+module.exports = options;
+module.exports.execute = execute;

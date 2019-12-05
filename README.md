@@ -52,6 +52,8 @@ MongoDB settings go in `mongodb_config.json`. Create if not present:
 	"host": "HOSTNAME",
 	"user": "USERNAME",
 	"pass": "PASSWORD",
+	"dbname": "DATABASE"
+	"port": "" // Optional, will use default 21017 if not specified
 }
 ```
 The bot will use collections `queues` and `userdata`.
