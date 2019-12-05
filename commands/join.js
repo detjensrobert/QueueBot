@@ -35,6 +35,21 @@ async function execute (message, args, db) {
 		return;
 	}
 	
+	const { capacity, users, length } = queueArr[0];
+	
+	// if already in the queue
+	if (users.includes(message.author.id)) {
+		message.channel.send("🚫 You're already in this queue.");
+		console.log("[ INFO ]  > User already in queue. Aborting.");
+		return;
+	}
+	
+	// if queue is full
+	if (capacity == length) {
+		message.channel.send("🚫 This queue is full.");
+		console.log("[ INFO ]  > Queue full. Aborting.");
+		return;
+	}
 	
 	// look for userdata in db
 	dbPromise = () => {return new Promise( (resolve, reject) => {
@@ -48,21 +63,22 @@ async function execute (message, args, db) {
 		console.log("[ INFO ]  > User hasn't added info. Aborting.");
 		return;
 	}
-	
-	console.log("Q:", queueArr);
-	console.log("U:", userArr);
-	
+	if ( !(userArr[0].fc && userArr[0].ign && capacity) ) {
+		message.channel.send("🚫 You're missing some of your info. Make sure to `"+prefix+"set` all three.");
+		console.log("[ INFO ]  > User hasn't added info. Aborting.");
+		return;
+	}
+		
 	// post info to channel
-	const position = queueArr[0].length;
 	const { fc, ign, profile } = userArr[0];
 	
 	let channelID = queueArr[0].channelID;
-	message.guild.channels.get(channelID).send(`Position: ${postition} | Switch profile: ${profile} | IGN: ${ign} | Friendcode: ${fc}`);
+	message.guild.channels.get(channelID).send(`**\`${length+1}/${capacity}\`** | ${message.author} | **Switch profile**: \`${profile}\` | **IGN**: \`${ign}\` | **Friendcode**: \`${fc}\``);
 	
 	// decrease available queue spots
-	queueDB.updateOne({name: name}, {$inc: {length: -1} });
+	queueDB.updateOne({name: name}, {$inc: {length: 1}, $push: {users: message.author.id} });
 	
-	message.channel.send("✅ Added you to the queue. You're in position "+position);
+	message.channel.send(`✅ Added you to the queue. You're in position ${length+1} of ${capacity}`);
 	
 }
 

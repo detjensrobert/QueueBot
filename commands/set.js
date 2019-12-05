@@ -4,7 +4,7 @@ const { prefix } = require('../config.json');
 const options = {
 	
 	name: 'set',
-	aliases: ['setinfo'],
+	aliases: ['info', 'setinfo'],
 	
 	usage: ['profile <Switch profile name>', 'ign <name>', 'fc SW-XXXX-XXXX-XXXX'],
 	description: 'Sets your queue display info for the join queue message.',
@@ -14,7 +14,8 @@ const options = {
 
 async function execute (message, args, db) {
 	
-	const option = args.shift().toLowerCase();
+	let option = args.shift();
+	if (option) option = option.toLowerCase();
 	let value = args.join(' ');
 	
 	if (value.length == 0) {
@@ -27,12 +28,12 @@ async function execute (message, args, db) {
 	
 	switch (option) {
 		case 'fc':
+			//if not a valid code, abort
 			const fcRegex = new RegExp(/(SW-)?[0-9]{4}-[0-9]{4}-[0-9]{4}/);
-			//if not a valid code
-			console.log("checking:", value, fcRegex.test(value));
 			if ( !(fcRegex.test(value)) ) {
-				let reply = `🚫 I dont't understand this friendcode.\nIs it formatted correctly?`
-					+ `\n **Usage:** \`${prefix}${this.name} fc (SW-)####-####-#### \``;
+				console.log("[ INFO ]  > Bad friendcode. Aborting.");
+				let reply = `🚫 I dont't understand this friendcode. Is it formatted correctly?`
+					+ `\n **Usage:** \`${prefix}${options.name} ${options.usage[2]}\``;
 				return message.channel.send(reply);
 			}
 			updated = "Friendcode";
@@ -48,17 +49,26 @@ async function execute (message, args, db) {
 			break;
 			
 		default:
-			let reply = `🚫 I don't understand what you're trying to set.\n**Usage:** \`${prefix}${options.name} ${options.usage}\``;
+			let reply = `🚫 I don't understand what you're trying to set.\n**Usage:** \`${prefix}${options.name} ${options.usage.join(" / ")}\``;
 			return message.channel.send(reply);
 	}
 	
+	// update that information in the db
 	const userdataDB = db.collection('userdata');
 	
-	userdataDB.updateOne({ userID: message.author.id }, { $set: {[`${option}`]: value} }, {upsert: true});
+	await userdataDB.updateOne({ userID: message.author.id }, { $set: {[`${option}`]: value} }, {upsert: true});
+	
+	// get user's info from db to show updated value
+	let dbPromise = () => {return new Promise( (resolve, reject) => {
+		userdataDB.find({userID: message.author.id}).toArray( (err, arr) => { err ? reject(err) : resolve(arr); });
+	})};
+	userArr = await dbPromise();
+	const { fc, ign, profile } = userArr[0];
 	
 	console.log("[ INFO ]  > "+updated+" set to " + value);
 	
-	message.channel.send("✅ "+updated+" set!");
+	message.channel.send("✅ "+updated+" set!\n**Switch profile**: `" + (profile || "[no data]") 
+		+ "` | **IGN**: `" + (ign || "[no data]") + "` | **Friendcode**: `" + (fc || "[no data]") + "`");
 	
 }
 

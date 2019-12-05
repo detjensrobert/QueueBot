@@ -27,7 +27,8 @@ async function execute (message, args, db) {
 	
 	findarr.forEach( (elem) => {
 		reply += `\n<#${elem.channelID}>: `;
-		reply += elem.length == 0 ? "No space left." : `${elem.length} spaces left.`;
+		const spacesLeft = elem.capcity - elem.users.length
+		reply += spacesLeft == 0 ? "No spaces left." : spacesLeft +" of "+ elem.capacity +" spaces left.";
 	});
 	
 	message.channel.send(reply);
