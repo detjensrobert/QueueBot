@@ -1,4 +1,5 @@
-const { prefix, queueCategoryID } = require('../config.json');
+const { prefix, queueCategoryID, colors } = require('../config.json');
+const Discord = require('discord.js');
 
 const options = {
 	
@@ -20,16 +21,18 @@ async function execute (message, args, db) {
 	const capacity = parseInt(args[1]);
 	
 	if (isNaN(capacity) || capacity <= 0) {
-		let reply = `🚫 Queue capacity needs to be a positive number.`
-			+`\n**Usage:** \`${prefix}${options.name} ${options.usage}\``;
-		return message.reply(reply);
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("Queue capacity needs to be a positive number.")
+			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+		return message.channel.send(errEmbed);
 	}
 	
 	// limit name length to 25 characters
 	if (name.length > 25) {
-		let reply = `🚫 Name is too long. Max 25 chars.`
-			+`\n**Usage:** \`${prefix}${options.name} ${options.usage}\``;
-		return message.reply(reply);
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("Name is too long. Max 25 chars")
+			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+		return message.channel.send(errEmbed);
 	}
 	
 	console.log(`[ INFO ] Creating queue with name "${name}" and capacity ${capacity}`);
@@ -37,30 +40,36 @@ async function execute (message, args, db) {
 	const queueDB = db.collection('queues');
 	
 	//look for name in db to see if already used
-	let dbPromise = () => {return new Promise( (resolve, reject) => {
-		queueDB.find({name: name}).toArray( (err, arr) => { err ? reject(err) : resolve(arr); });
-	})};
-	let findarr = await dbPromise();
+	const findarr = await queueDB.find({name: name}).toArray();
 	
 	// if name already in use, abort
 	if ( findarr.length != 0 ) {
-		message.channel.send("🚫 A queue with that name already exists. Please choose a different name.");
 		console.log("[ INFO ]  > Duplicate name. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("A queue with that name already exists. Please choose a different name.")
+			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+		return message.channel.send(errEmbed);
 	}
 	
 	// create channel
-	queueChannel = await message.guild.createChannel("queue-"+name, {type: 'text', parent: queueCategoryID} );
-	queueChannel.send("Created by " + message.author + "\nCapacity: " + capacity);
+	queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID} );
 	
-	message.channel.send("✅ Queue `"+name+"` created. Channel: " + queueChannel);
+	const queueEmbed = new Discord.RichEmbed().setColor(colors.info)
+		.setTitle(`**Queue \`${name}\`**`)
+		.addField(`Capacity:  \` ${capacity} \``, `Host: ${message.author}`, );
+	queueChannel.send(queueEmbed);
+	
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+		.setTitle(`Queue \`${name}\` created.`)
+		.setDescription(`Channel: ${queueChannel}`);
+	message.channel.send(replyEmbed);
 			
 	// add new queue to db
 	queueDB.insertOne({
 		channelID: queueChannel.id,
 		name: name,
 		capacity: capacity,
-		length: 0,
+		available: capacity,
 		users: []
 	});
 	

@@ -1,3 +1,5 @@
+const { prefix, colors } = require('../config.json');
+const Discord = require('discord.js');
 
 const options = {
 	name: 'list',
@@ -12,26 +14,24 @@ async function execute (message, args, db) {
 	
 	console.log("[ INFO ] Listing queues.");
 	
-	let reply = "";
-	
-	const queueDB = db.collection('queues');
-	
 	//get all queues in database
-	let dbPromise = () => {return new Promise( (resolve, reject) => {
-		queueDB.find().toArray( (err, arr) => { err ? reject(err) : resolve(arr); });
-	})};
-	let findarr = await dbPromise();
+	const queueDB = db.collection('queues');
+	const findarr = await queueDB.find().toArray();
+	console.log(findarr);
 	
-	reply += `Currently ${findarr.length} active queues.`;
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.info)
+		.setTitle(`Currently ${findarr.length} active queues.`);
+		
 	console.log("[ INFO ]  > "+findarr.length+" currently active.");
 	
+	let reply = "";
 	findarr.forEach( (elem) => {
 		reply += `\n<#${elem.channelID}>: `;
-		const spacesLeft = elem.capcity - elem.users.length
-		reply += spacesLeft == 0 ? "No spaces left." : spacesLeft +" of "+ elem.capacity +" spaces left.";
+		reply += elem.available == 0 ? "No spaces left." : `${elem.available} of ${elem.capacity} spaces left`;
 	});
+	replyEmbed.setDescription(reply);
 	
-	message.channel.send(reply);
+	message.channel.send(replyEmbed);
 	
 }
 

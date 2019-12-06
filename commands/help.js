@@ -1,4 +1,4 @@
-const { prefix, embedColor, middlemanRoleID } = require('../config.json');
+const { prefix, colors, middlemanRoleID } = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -22,11 +22,13 @@ const options = {
  
 async function execute (message, args, db) {
 	
+	console.log("[ INFO ] Showing help");
+	
 	const commands = message.client.commands;
 	
-	const embed = new Discord.RichEmbed()
+	const helpEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setAuthor("QueueBot Help" , message.client.user.displayAvatarURL)
-		.setColor(embedColor);
+		.setFooter("Created by WholeWheatBagels", 'https://cdn.discordapp.com/avatars/197460469336899585/efb49d183b81f30c42b25517e057a704.png');
 	
 	commands.forEach((cmd) => {
 
@@ -35,15 +37,13 @@ async function execute (message, args, db) {
 		
 			let helpStr = cmd.description;
 			
-			if (cmd.usage) {
-				helpStr += "\nUsage:"
-				
+			if (cmd.usage) {				
 				// if multiple usages
 				if (Array.isArray(cmd.usage)) {
-					cmd.usage.forEach( usage => helpStr += `\n- \`${prefix}${cmd.name} ${usage}\`` );
+					cmd.usage.forEach( usage => helpStr += `\n\`${prefix}${cmd.name} ${usage}\`` );
 				}
 				else {
-					helpStr += `\n- \`${prefix}${cmd.name} ${cmd.usage}\``;
+					helpStr += `\n\`${prefix}${cmd.name} ${cmd.usage}\``;
 				}
 			}
 			
@@ -59,12 +59,12 @@ async function execute (message, args, db) {
 				}
 			}
 			
-			embed.addField(`**${cmd.name}**` + ( cmd.aliases ? ", " + cmd.aliases.join(", ") : "") , helpStr);
+			helpEmbed.addField(`**${cmd.name}**` + ( cmd.aliases ? ", " + cmd.aliases.join(", ") : "") , helpStr);
 			
 		}
 	});
 
-	message.channel.send({embed});
+	message.channel.send(helpEmbed);
 		
 }
 

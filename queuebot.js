@@ -6,7 +6,7 @@ const fs = require('fs');
 
 // grab settings from file
 const { token } = require('./token.json')
-const { prefix, middlemanRoleID } = require('./config.json')
+const { prefix, middlemanRoleID, colors } = require('./config.json')
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
@@ -66,13 +66,10 @@ client.on('message', message => {
 	if (command.mmOnly && !message.member.roles.has(middlemanRoleID)) { return; }
 	
 	if (command.args && args.length != command.args) {
-		let reply = `I don't understand.`;
-
-		if (command.usage) {
-			reply += `\n**Usage:** \`${prefix}${command.name} ${command.usage}\``;
-		}
-
-		return message.reply(reply);
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("I don't understand.")
+			.addField("Usage:", `\`${prefix}${command.name} ${command.usage}\``);
+		return message.channel.send(errEmbed);
 	}
 	
 	
@@ -88,8 +85,10 @@ client.on('message', message => {
 		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
 		if (now < expirationTime) {
-			const timeLeft = (expirationTime - now) / 1000;
-			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s)!`);
+			const timeLeft = (expirationTime - now) / 1000;			
+			const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+				.setTitle(`Wait ${timeLeft.toFixed(1)} more second(s) to call this again.`);
+			return message.channel.send(errEmbed);
 		}
 	}
 	timestamps.set(message.author.id, now);

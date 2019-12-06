@@ -1,6 +1,12 @@
 {
 	"prefix": "!q ",
-	"embedColor": "#B64225",
+	
+	"colors": {
+		"success": "#4CAF50",
+		"error": "#f44336",
+		"info": "#2196F3",
+		"warn": "#FFC107"
+	},
 	
 	"queueCategoryID": "651614725804654629",
 	"middlemanRoleID": "651633834630053889"

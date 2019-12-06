@@ -1,10 +1,11 @@
-const { prefix } = require('../config.json');
+const { prefix, colors } = require('../config.json');
+const Discord = require('discord.js');
 
 const options = {
 	
 	// Command options
 	name: 'join',
-	aliases: ['add'],
+	aliases: ['add', 'enter'],
 	
 	usage: '<queue-name>',
 	description: 'Adds you to the specified queue and sends a message with your info in the queue channel.',
@@ -23,62 +24,68 @@ async function execute (message, args, db) {
 	console.log(`[ INFO ] Adding user to queue "${name}"`);
 	
 	// look for queue in db
-	let dbPromise = () => {return new Promise( (resolve, reject) => {
-		queueDB.find({name: name}).toArray( (err, arr) => { err ? reject(err) : resolve(arr); });
-	})};
-	let queueArr = await dbPromise();
+	let queueArr = await queueDB.find({name: name}).toArray();
 	
 	// if queue not found, abort
 	if ( queueArr.length == 0 ) {
-		message.channel.send("🚫 No queues by that name exist.");
 		console.log("[ INFO ]  > No queue by that name. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle(`Could not find queue \`${name}\`.`);
+		return message.channel.send(errEmbed);
 	}
 	
-	const { capacity, users, length } = queueArr[0];
+	const { capacity, users, available, channelID } = queueArr[0];
 	
 	// if already in the queue
 	if (users.includes(message.author.id)) {
-		message.channel.send("🚫 You're already in this queue.");
 		console.log("[ INFO ]  > User already in queue. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle(`You're already in queue \`${name}\`.`);
+		return message.channel.send(errEmbed);
 	}
 	
 	// if queue is full
-	if (capacity == length) {
-		message.channel.send("🚫 This queue is full.");
+	if (available == 0) {
 		console.log("[ INFO ]  > Queue full. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle(`Queue \`${name}\` is full`);
+		return message.channel.send(errEmbed);
 	}
 	
 	// look for userdata in db
-	dbPromise = () => {return new Promise( (resolve, reject) => {
-		userdataDB.find({userID: message.author.id}).toArray( (err, arr) => { err ? reject(err) : resolve(arr); });
-	})};
-	userArr = await dbPromise();
+	userArr = await userdataDB.find({userID: message.author.id}).toArray();
 	
 	// if userdata not found, abort
 	if ( userArr.length == 0 ) {
-		message.channel.send("🚫 You haven't added your info yet. Use `"+prefix+"set` to set that up.");
 		console.log("[ INFO ]  > User hasn't added info. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("You haven't added your info yet.")
+			.setDescription(`Use \`${prefix}set\` to set that up`);
+		return message.channel.send(errEmbed);
 	}
 	if ( !(userArr[0].fc && userArr[0].ign && capacity) ) {
-		message.channel.send("🚫 You're missing some of your info. Make sure to `"+prefix+"set` all three.");
 		console.log("[ INFO ]  > User hasn't added info. Aborting.");
-		return;
+		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+			.setTitle("You haven't added all of your info yet.")
+			.setDescription(`Make sure you \`${prefix}set\` all three.`);
+		return message.channel.send(errEmbed);
 	}
 		
 	// post info to channel
 	const { fc, ign, profile } = userArr[0];
 	
-	let channelID = queueArr[0].channelID;
-	message.guild.channels.get(channelID).send(`**\`${length+1}/${capacity}\`** | ${message.author} | **Switch profile**: \`${profile}\` | **IGN**: \`${ign}\` | **Friendcode**: \`${fc}\``);
+	const queueEmbed = new Discord.RichEmbed().setColor(colors.success)
+		.setDescription(`\`${capacity-available+1}/${capacity}\` ${message.author} \n**Switch profile**: \`${profile}\` \n**IGN**: \`${ign}\` \n**Friendcode**: \`${fc}\``);
+	message.guild.channels.get(channelID).send(queueEmbed);
 	
 	// decrease available queue spots
-	queueDB.updateOne({name: name}, {$inc: {length: 1}, $push: {users: message.author.id} });
+	queueDB.updateOne({name: name}, {$inc: {available: -1}, $push: {users: message.author.id} });
 	
-	message.channel.send(`✅ Added you to the queue. You're in position ${length+1} of ${capacity}`);
+	// confirmation message
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+		.setTitle("Added you to the queue.")
+		.setDescription(`You're in position ${capacity-available+1} of ${capacity}.`);
+	message.channel.send(replyEmbed);
 	
 }
 
