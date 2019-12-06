@@ -59,6 +59,10 @@ async function execute (message, args, db) {
 				}
 			}
 			
+			if (cmd.mmOnly) {
+				helpStr += "\n`[mm only]`";
+			}
+			
 			helpEmbed.addField(`**${cmd.name}**` + ( cmd.aliases ? ", " + cmd.aliases.join(", ") : "") , helpStr);
 			
 		}

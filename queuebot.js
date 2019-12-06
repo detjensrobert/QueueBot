@@ -6,7 +6,7 @@ const fs = require('fs');
 
 // grab settings from file
 const { token } = require('./token.json')
-const { prefix, middlemanRoleID, colors } = require('./config.json')
+const { prefix, colors, middlemanRoleID, restrictToChannel } = require('./config.json')
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
@@ -46,6 +46,9 @@ client.on('message', message => {
 	
 	// ignore DMs
 	if (message.channel.type !== "text") { return; }
+	
+	// only listen in specified channel, if given
+	if (restrictToChannel && message.channel.id != restrictToChannel) { return; }
 	
 	// turn message into array
 	const args = message.content.trim().slice(prefix.length).split(/ +/);
