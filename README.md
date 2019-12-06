@@ -11,7 +11,7 @@ When a user joins a queue, the bot posts a message with that user's information 
 
 `Position: ## | Switch Profile Name: ## | IGN: ## | Friend Code: ## ` 
 
-The queue channel is visible to everyone, but only QueueBot, the queue host, queue members, and a configurable admin role can send messages.
+Queue channels are visible to everyone, but only QueueBot, the queue host, queue members, and a configurable admin role can send messages.
 
 ------------
 
@@ -24,7 +24,7 @@ The queue channel is visible to everyone, but only QueueBot, the queue host, que
 
 - `!queue join <queue-name>`
 
-	Adds user to queue `<name>` (if it exists), and posts their info in that queue's channel.
+	Adds user to queue `<queue-name>` (if it exists), and posts their info in that queue's channel.
 
 - `!queue set profile <Switch profile name> / ign <name> / fc (SW-)XXXX-XXXX-XXXX`
 
