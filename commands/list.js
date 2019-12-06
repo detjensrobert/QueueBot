@@ -17,7 +17,6 @@ async function execute (message, args, db) {
 	//get all queues in database
 	const queueDB = db.collection('queues');
 	const findarr = await queueDB.find().toArray();
-	console.log(findarr);
 	
 	const replyEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setTitle(`Currently ${findarr.length} active queues.`);
@@ -26,8 +25,9 @@ async function execute (message, args, db) {
 	
 	let reply = "";
 	findarr.forEach( (elem) => {
-		reply += `\n<#${elem.channelID}>: `;
-		reply += elem.available == 0 ? "No spaces left." : `${elem.available} of ${elem.capacity} spaces left`;
+		//~ reply += `\n<#${elem.channelID}>: `;
+		reply += `\n**${elem.name}**: (host: <@${elem.host}>), `;
+		reply += elem.available == 0 ? "No spaces left." : `${elem.available} of ${elem.capacity} spaces left.`;
 	});
 	replyEmbed.setDescription(reply);
 	

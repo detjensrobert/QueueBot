@@ -11,6 +11,8 @@ When a user joins a queue, the bot posts a message with that user's information 
 
 `Position: ## | Switch Profile Name: ## | IGN: ## | Friend Code: ## ` 
 
+The queue channel is visible to everyone, but only QueueBot, the queue host, queue members, and a configurable admin role can send messages.
+
 ------------
 
 ### Usage

@@ -70,6 +70,9 @@ async function execute (message, args, db) {
 			.setDescription(`Make sure you \`${prefix}set\` all three.`);
 		return message.channel.send(errEmbed);
 	}
+	
+	// make channel visible to user
+	message.guild.channels.get(channelID).overwritePermissions(message.author, { 'SEND_MESSAGES': true });
 		
 	// post info to channel
 	const { fc, ign, profile } = userArr[0];

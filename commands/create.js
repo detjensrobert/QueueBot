@@ -1,4 +1,4 @@
-const { prefix, queueCategoryID, colors } = require('../config.json');
+const { prefix, queueCategoryID, queueAdminRoleID, colors } = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -51,27 +51,34 @@ async function execute (message, args, db) {
 		return message.channel.send(errEmbed);
 	}
 	
-	// create channel
-	queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID} );
+	// create channel w/ perms (only allow needed people to send messages)
+	const permissions = [
+		{ id: message.guild.id,     deny: ['SEND_MESSAGES'], }, // @everyone
+		{ id: message.client.user, allow: ['SEND_MESSAGES'], }, // the bot
+		{ id: message.author,      allow: ['SEND_MESSAGES'], }, // queue host
+		{ id: queueAdminRoleID,    allow: ['SEND_MESSAGES'], }, // queue admin role
+	];
+	queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID, permissionOverwrites: permissions} );
 	
 	const queueEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setTitle(`**Queue \`${name}\`**`)
 		.addField(`Capacity:  \` ${capacity} \``, `Host: ${message.author}`, );
 	queueChannel.send(queueEmbed);
-	
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
-		.setTitle(`Queue \`${name}\` created.`)
-		.setDescription(`Channel: ${queueChannel}`);
-	message.channel.send(replyEmbed);
 			
 	// add new queue to db
 	queueDB.insertOne({
 		channelID: queueChannel.id,
 		name: name,
+		host: message.author.id,
 		capacity: capacity,
 		available: capacity,
 		users: []
 	});
+	
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+		.setTitle(`Queue \`${name}\` created.`)
+		.setDescription(`Channel: ${queueChannel}`);
+	message.channel.send(replyEmbed);
 	
 	console.log("[ INFO ]  > Queue and channel created. ");
 	
