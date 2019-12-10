@@ -6,17 +6,18 @@ const options = {
 	name: 'end',
 	aliases: ['delete', 'close'],
 	
-	usage: '<queue-name>',
+	usage: '<queue name>',
 	description: 'Ends queue and deletes its channel.',
 	
 	cooldown: 5,
-	args: 1,
+	minArgs: 1,
 	
 	mmOnly: true,
 }
 
 async function execute (message, args, db) {
-	const name = args[0].toLowerCase();
+	
+	const name = args.join('-').toLowerCase();
 		
 	const queueDB = db.collection('queues');
 	

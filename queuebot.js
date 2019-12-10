@@ -68,9 +68,9 @@ client.on('message', message => {
 	// if middleman only
 	if (command.mmOnly && !message.member.roles.has(middlemanRoleID)) { return; }
 	
-	if (command.args && args.length != command.args) {
+	if (command.minArgs && args.length < command.minArgs) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle("I don't understand.")
+			.setTitle("I don't understand. Are you missing something?")
 			.addField("Usage:", `\`${prefix}${command.name} ${command.usage}\``);
 		return message.channel.send(errEmbed);
 	}

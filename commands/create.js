@@ -6,19 +6,19 @@ const options = {
 	name: 'create',
 	aliases: ['createqueue', 'makequeue', 'start'],
 	
-	usage: '<queue-name> <capacity>',
-	description: 'Creates new queue & channel named <queue-name> with a capacity of <capacity>.',
+	usage: '<queue name> <capacity>',
+	description: 'Creates new queue & channel named <queue name> with a capacity of <capacity>.',
 	
 	cooldown: 5,
-	args: 2,
+	minArgs: 2,
 	
 	mmOnly: true,
 }
 
 async function execute (message, args, db) {
 	
-	const name = args[0].toLowerCase();
-	const capacity = parseInt(args[1]);
+	const capacity = parseInt(args.pop());
+	const name = args.join('-').toLowerCase();
 	
 	if (isNaN(capacity) || capacity <= 0) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)

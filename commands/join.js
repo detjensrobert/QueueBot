@@ -7,16 +7,16 @@ const options = {
 	name: 'join',
 	aliases: ['add', 'enter'],
 	
-	usage: '<queue-name>',
+	usage: '<queue name>',
 	description: 'Adds you to the specified queue and sends a message with your info in the queue channel.',
 	
 	cooldown: 5,
-	args: 1,
+	minArgs: 1,
 }
 
 async function execute (message, args, db) {
 	
-	const name = args[0].toLowerCase();
+	const name = args.join('-').toLowerCase();
 	
 	const queueDB = db.collection('queues');
 	const userdataDB = db.collection('userdata');

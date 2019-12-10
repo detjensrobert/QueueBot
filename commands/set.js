@@ -10,12 +10,12 @@ const options = {
 	description: 'Sets your queue display info for the join queue message.',
 	
 	cooldown: 2,
+	minArgs: 2,
 }
 
 async function execute (message, args, db) {
 	
-	let option = args.shift();
-	if (option) option = option.toLowerCase();
+	const option = args.shift();
 	let value = args.join(' ');
 	
 	let usageStr = "";
