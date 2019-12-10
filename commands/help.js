@@ -11,7 +11,7 @@ const options = {
 	cooldown: 5,
 }
 /* == HELP MESSAGE FORMAT ==
- * $NAME
+ * $NAME ($ALIASES)
  * $DESCRIP
  * Usage:
  *   $USAGE_1
