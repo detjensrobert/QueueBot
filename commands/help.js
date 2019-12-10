@@ -28,7 +28,7 @@ async function execute (message, args, db) {
 	
 	const helpEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setAuthor("QueueBot Help" , message.client.user.displayAvatarURL)
-		.setFooter("Created by WholeWheatBagels", 'https://cdn.discordapp.com/avatars/197460469336899585/efb49d183b81f30c42b25517e057a704.png');
+		.setFooter("QueueBot created by WholeWheatBagels", 'https://cdn.discordapp.com/avatars/197460469336899585/efb49d183b81f30c42b25517e057a704.png');
 	
 	commands.forEach((cmd) => {
 
@@ -45,6 +45,8 @@ async function execute (message, args, db) {
 				else {
 					helpStr += `\n\`${prefix}${cmd.name} ${cmd.usage}\``;
 				}
+			} else {
+				helpStr += `\n\`${prefix}${cmd.name}\``;
 			}
 			
 			if (cmd.example) {
