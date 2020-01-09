@@ -20,7 +20,9 @@ Queue channels are visible to everyone, but only QueueBot, the queue host, queue
 
 	Creates a new queue with the given name and length, and a new channel `#queue-<queue-name>` under a configured category.
 
-	Can only be called by authorised users, e.g. a specified role.
+	Can only be called by authorised users (with a specified role e.g. Middlemen).
+	
+	The resultant channel is only visible to the queue members and a queue admin role.
 
 - `!queue join <queue-name>`
 

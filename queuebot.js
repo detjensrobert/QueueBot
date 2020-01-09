@@ -12,7 +12,8 @@ const { prefix, colors, middlemanRoleID, restrictToChannel } = require('./config
 const MongoClient = require('mongodb').MongoClient;
 const mdbconf = require('./mongodb_config.json'); // mdbconf == mongoconfig
 mdbconf.port = mdbconf.port || "27017";
-const mongoURL = `mongodb://${mdbconf.user}:${mdbconf.pass}@${mdbconf.host}:${mdbconf.port}/`;
+//~ const mongoURL = `mongodb://${mdbconf.user}:${mdbconf.pass}@${mdbconf.host}:${mdbconf.port}/`;
+const mongoURL = `mongodb://${mdbconf.host}:${mdbconf.port}/`;
 var db;
 
 // import commands from dir
