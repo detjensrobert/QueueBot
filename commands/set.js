@@ -34,6 +34,7 @@ async function execute (message, args, db) {
 	
 	switch (option) {
 		case 'fc':
+		case 'friendcode':
 			//if not a valid code, abort
 			const fcRegex = new RegExp(/(SW-)?[0-9]{4}-[0-9]{4}-[0-9]{4}/);
 			if ( !(fcRegex.test(value)) ) {
@@ -48,10 +49,12 @@ async function execute (message, args, db) {
 			break;
 			
 		case 'ign':
+		case 'gamename':
 			updated = "IGN";
 			break;
 			
 		case 'profile':
+		case 'profilename':
 			updated = "Switch profile name";
 			break;
 			
