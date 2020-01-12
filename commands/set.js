@@ -19,6 +19,7 @@ async function execute (message, args, db) {
 	
 	const option = args.shift();
 	let value = args.join(' ');
+	let toSet = "";
 	
 	let usageStr = "";
 	options.usage.forEach( usage => usageStr += `\`${prefix}${options.name} ${usage}\`\n`);
@@ -37,6 +38,7 @@ async function execute (message, args, db) {
 	switch (option) {
 		case 'fc':
 		case 'friendcode':
+			toSet = 'fc';
 			//if not a valid code, abort
 			const fcRegex = new RegExp(/(SW-)?[0-9]{4}-[0-9]{4}-[0-9]{4}/);
 			if ( !(fcRegex.test(value)) ) {
@@ -52,11 +54,13 @@ async function execute (message, args, db) {
 			
 		case 'ign':
 		case 'gamename':
+			toSet = 'ign';
 			updated = "IGN";
 			break;
 			
 		case 'profile':
 		case 'profilename':
+			toSet = 'profile';
 			updated = "Switch profile name";
 			break;
 			
@@ -70,7 +74,7 @@ async function execute (message, args, db) {
 	
 	// update that information in the db
 	const userdataDB = db.collection('userdata');
-	await userdataDB.updateOne({ userID: message.author.id }, { $set: {[`${option}`]: value} }, {upsert: true});
+	await userdataDB.updateOne({ userID: message.author.id }, { $set: {[`${toSet}`]: value} }, {upsert: true});
 	
 	userArr = await userdataDB.find({userID: message.author.id}).toArray();
 	const { fc, ign, profile } = userArr[0];

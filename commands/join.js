@@ -63,7 +63,7 @@ async function execute (message, args, db) {
 			.setDescription(`Use \`${prefix}set\` to set that up`);
 		return message.channel.send(errEmbed);
 	}
-	if ( !(userArr[0].fc && userArr[0].ign && capacity) ) {
+	if ( !(userArr[0].fc && userArr[0].ign && userArr[0].profile) ) {
 		console.log("[ INFO ]  > User hasn't added info. Aborting.");
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
 			.setTitle("You haven't added all of your info yet.")
