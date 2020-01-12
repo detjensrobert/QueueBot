@@ -6,10 +6,12 @@ const options = {
 	name: 'set',
 	aliases: ['info', 'setinfo'],
 	
-	usage: ['profile <Switch profile name>', 'ign <name>', 'fc SW-####-####-####'],
+	usage: ['profile <Switch profile name>', 
+	        'ign <In-game name>', 
+	        'fc SW-####-####-####'],
 	description: 'Sets your queue display info for the join queue message.',
 	
-	cooldown: 2,
+	cooldown: 3,
 	minArgs: 2,
 }
 

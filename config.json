@@ -8,7 +8,7 @@
 		"warn": "#FFC107"
 	},
 	
-	"restrictToChannel": "651605606951550981",
+	"restrictToChannels": ["651605606951550981"],
 	
 	"queueCategoryID": "651614725804654629",
 	"middlemanRoleID": "651633834630053889",

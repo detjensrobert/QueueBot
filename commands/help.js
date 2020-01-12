@@ -37,7 +37,8 @@ async function execute (message, args, db) {
 		
 			let helpStr = cmd.description;
 			
-			if (cmd.usage) {				
+			if (cmd.usage) {
+					
 				// if multiple usages
 				if (Array.isArray(cmd.usage)) {
 					cmd.usage.forEach( usage => helpStr += `\n\`${prefix}${cmd.name} ${usage}\`` );
@@ -45,6 +46,7 @@ async function execute (message, args, db) {
 				else {
 					helpStr += `\n\`${prefix}${cmd.name} ${cmd.usage}\``;
 				}
+				
 			} else {
 				helpStr += `\n\`${prefix}${cmd.name}\``;
 			}
@@ -62,7 +64,7 @@ async function execute (message, args, db) {
 			}
 			
 			if (cmd.mmOnly) {
-				helpStr += "\n`[mm only]`";
+				helpStr += "\n*(Middleman restricted)*";
 			}
 			
 			helpEmbed.addField(`**${cmd.name}**` + ( cmd.aliases ? ", " + cmd.aliases.join(", ") : "") , helpStr);
