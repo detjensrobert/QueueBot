@@ -1,5 +1,5 @@
 # QueueBot
-Queue bot for Discord, tentatively written for the [Pokemon Sword & Shield Discord](http://discord.gg/pokemonswordshield "Pokemon Sword & Shield Discord") based on a suggestion from one of their members. 
+Queue bot for Discord, written for the [Pokemon Sword & Shield Discord](http://discord.gg/pokemonswordshield "Pokemon Sword & Shield Discord") 
 
 ------------
 
@@ -16,7 +16,7 @@ Queue channels are visible to everyone, but only QueueBot, the queue host, queue
 ------------
 
 ### Usage
-- `!queue create <queue-name> <length>`
+- `!queue open <queue-name> <length>`
 
 	Creates a new queue with the given name and length, and a new channel `#queue-<queue-name>` under a configured category.
 
@@ -28,15 +28,23 @@ Queue channels are visible to everyone, but only QueueBot, the queue host, queue
 
 	Adds user to queue `<queue-name>` (if it exists), and posts their info in that queue's channel.
 
-- `!queue set profile <Switch profile name> / ign <name> / fc (SW-)XXXX-XXXX-XXXX`
+- `!queue set <Switch profile name> | <In-game name> | (SW-)XXXX-XXXX-XXXX`
 
 	Users can set their profile data for the join message.
+	
+- `!queue me`
 
-- `!queue end <queue-name>`
+	Displays the queue information a user has entered for the join message.
+	
+- `!queue add <amount>`
+
+	Adds <amount> more capacity to an exising queue.
+
+- `!queue close <queue-name>`
 
 	Deletes queue and the associated channel.
-
-	Can only be called by authorised users, e.g. a specified role.
+	
+	Can only be called by authorised users (with a specified role e.g. Middlemen).
 	
 - `!queue list`
 
