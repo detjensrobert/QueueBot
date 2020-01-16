@@ -19,7 +19,7 @@ const options = {
  *   $EXAMPLE
  */
  
-async function execute (message, args, db) {
+async function execute (message) {
 	
 	console.log("[ INFO ] Showing help");
 	

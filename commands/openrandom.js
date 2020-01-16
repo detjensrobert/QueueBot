@@ -1,13 +1,14 @@
-const { prefix, queueCategoryID, queueAdminRoleIDs, colors } = require('../config.json');
+const { prefix, queueCategoryID,queueListChannelID, queueAdminRoleIDs, colors } = require('../config.json');
 const Discord = require('discord.js');
+
+let queueChannel, listMsg;
 
 const options = {
 	
-	name: 'open',
-	aliases: ['start', 'create'],
+	name: 'random',
 	
 	usage: '<queue name> <capacity>',
-	description: 'Creates a new queue with the given <queue name> and <capacity>.',
+	description: 'Creates a new RANDOM queue with the given <queue name> and <capacity>.',
 	
 	cooldown: 5,
 	minArgs: 2,
@@ -51,31 +52,59 @@ async function execute (message, args, db) {
 		return message.channel.send(errEmbed);
 	}
 	
-	// create channel w/ perms (only allow needed people access to channel)
+	/* send message to #queue-list
+ * create private channel
+ * users react to join
+ * host -> !next # 
+ * dms # of reacted users randomly
+ * dm'd users respond to gen inv. to channel
+ * channel generates pin for raid
+ * users booted once done
+ */
+	
+	// send message to #queue-list && add reactions
+	const listEmbed = new Discord.RichEmbed().setColor(colors.info)
+		.setTitle(`**${name}**`)
+		.setDescription("**Host**: "+message.author)
+		.addField("Capacity: "+capacity, "React with <:pokeball:667267492598513684> to join the queue");
+	
+	listMsg = await message.guild.channels.get(queueListChannelID).send(listEmbed);
+	listMsg.react(message.guild.emojis.get('667267492598513684'));
+	
+	// create reaction handler
+	const Filter = (reaction, user) => reaction.emoji.id == '667267492598513684' && user.id != message.client.user.id;
+	const Collector = listMsg.createReactionCollector(Filter, {max: capacity});
+	Collector.on('collect', r => onCollect(message, r));
+	Collector.on('end', collected => onEnd(message, collected));
+	
+	// create queue channel w/ perms (only allow needed people access to channel)
 	const permissions = [
 		{ id: message.client.user, allow: ['READ_MESSAGES', 'SEND_MESSAGES'], }, // the bot
-		{ id: message.author,      allow: ['READ_MESSAGES'], }, // queue host
+		{ id: message.author,      allow: ['READ_MESSAGES', 'SEND_MESSAGES'], }, // queue host
 		{ id: message.guild.id,     deny: ['READ_MESSAGES'], }, // @everyone
 	];
 	queueAdminRoleIDs.forEach(role => {		// queue admin roles
-		permissions.push( { id: role, allow: ['READ_MESSAGES', 'SEND_MESSAGES'], } ) 
+		permissions.push( { id: role, allow: ['READ_MESSAGES', 'SEND_MESSAGES'], } );
 	});
 	
-	const queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID, permissionOverwrites: permissions} );
-	
+	// send header message to queue channel
 	const queueEmbed = new Discord.RichEmbed().setColor(colors.info)
-		.setTitle(`**Queue \`${name}\`**`)
+		.setTitle(`**Random queue \`${name}\`**`)
 		.addField(`Capacity:  \` ${capacity} \``, `Host: ${message.author}`, );
+	queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID, 
+		permissionOverwrites: permissions} )
 	queueChannel.send(queueEmbed);
 			
 	// add new queue to db
 	queueDB.insertOne({
+		listMsgID: listMsg.id,
 		channelID: queueChannel.id,
 		name: name,
 		host: message.author.id,
 		capacity: capacity,
 		taken: 0,
-		users: []
+		users: [],
+		random: true
 	});
 	
 	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
@@ -86,6 +115,16 @@ async function execute (message, args, db) {
 	console.log("[ INFO ]  > Queue and channel created. ");
 	
 	return;
+	
+}
+
+function onCollect (message, r) {
+	console.log("User reacted");
+	queueChannel.send("New member: "+r.user);
+}
+
+function onEnd (message, collected) {
+	queueChannel.send("Queue reaction closed, reacts: "+collected.size);
 }
 
 module.exports = options;

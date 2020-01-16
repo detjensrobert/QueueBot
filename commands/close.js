@@ -1,4 +1,4 @@
-const { colors } = require('../config.json');
+const { queueListChannelID, colors } = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -37,6 +37,10 @@ async function execute (message, args, db) {
 	//delete channel
 	let channelID = findarr[0].channelID;
 	message.guild.channels.get(channelID).delete();
+	
+	if (findarr[0].random) {
+		message.guild.channels.get(queueListChannelID).fetchMessage(findarr[0].listMsgID).then(msg => msg.delete());
+	}
 	
 	//delete from database
 	queueDB.deleteOne({ name: name });

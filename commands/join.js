@@ -72,7 +72,7 @@ async function execute (message, args, db) {
 	}
 	
 	// make channel visible to user
-	message.guild.channels.get(channelID).overwritePermissions(message.author, { 'SEND_MESSAGES': true });
+	message.guild.channels.get(channelID).overwritePermissions(message.author, { 'READ_MESSAGES': true, 'SEND_MESSAGES': true });
 		
 	// post info to channel
 	const { fc, ign, profile } = userArr[0];

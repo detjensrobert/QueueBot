@@ -44,7 +44,7 @@ async function execute (message, args, db) {
 	// increase available queue spots
 	queueDB.updateOne({channelID: channelID}, {$inc: {capacity: expandBy} });
 	
-	const { capacity, taken } = queueArr[0];
+	let { capacity, taken } = queueArr[0];
 	capacity += expandBy;
 	
 	// confirmation message
