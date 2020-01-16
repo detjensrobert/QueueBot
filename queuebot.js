@@ -72,12 +72,10 @@ client.on('message', message => {
 	
 	if (command.minArgs && args.length < command.minArgs) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle("I don't understand. Are you missing something?")
+			.setTitle("Oops! Are you missing something?")
 			.addField("Usage:", `\`${prefix}${command.name} ${command.usage}\``);
 		return message.channel.send(errEmbed);
 	}
-	
-	
 	
 	// == COOLDOWN HANDLING ==
 	if (command.cooldown) {
@@ -103,13 +101,12 @@ client.on('message', message => {
 	
 	// ==============
 	// ACTUAL COMMAND CALL
-	try {
-		command.execute(message, args, db);
-	} catch (error) {
-		console.error("[ ERROR ] " +error);
-		message.reply('there was an error trying to execute that command!');
-	}
-
+	command.execute(message, args, db)
+		.catch(err => {
+			console.error("[ ERROR ] " + err);
+			message.reply('there was an error trying to execute that command!');
+		});
+	
 });
 
 // Login to database and Discord

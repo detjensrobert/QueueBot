@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const options = {
 	
 	name: 'help',
-	aliases: ['?', 'h'],
+	aliases: ['info', '?', 'h'],
 	
 	description: 'Shows this list of commands.',
 	
@@ -14,8 +14,7 @@ const options = {
  * $NAME ($ALIASES)
  * $DESCRIP
  * Usage:
- *   $USAGE_1
- *   $USAGE_2
+ *   $USAGE
  * Examples:
  *   $EXAMPLE
  */

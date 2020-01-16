@@ -1,11 +1,11 @@
-const { prefix, colors } = require('../config.json');
+const { colors } = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
 	name: 'list',
-	aliases: ['l', 'all'],
+	aliases: ['l', 'ls', 'all', 'a'],
 	
-	description: 'Lists all current queues.',
+	description: 'Lists all currently active queues.',
 	
 	cooldown: 5,
 }
@@ -27,7 +27,7 @@ async function execute (message, args, db) {
 	findarr.forEach( (elem) => {
 		//~ reply += `\n<#${elem.channelID}>: `;
 		reply += `\n**${elem.name}**: (host: <@${elem.host}>), `;
-		reply += elem.available == 0 ? "No spaces left." : `${elem.available} of ${elem.capacity} spaces left.`;
+		reply += elem.available == 0 ? "No spaces left." : `${elem.taken} / ${elem.capacity}.`;
 	});
 	replyEmbed.setDescription(reply);
 	

@@ -3,11 +3,11 @@ const Discord = require('discord.js');
 
 const options = {
 	
-	name: 'create',
-	aliases: ['createqueue', 'makequeue', 'start'],
+	name: 'open',
+	aliases: ['start', 'create'],
 	
 	usage: '<queue name> <capacity>',
-	description: 'Creates new queue & channel named <queue name> with a capacity of <capacity>.',
+	description: 'Creates a new queue with the given <queue name> and <capacity>.',
 	
 	cooldown: 5,
 	minArgs: 2,
@@ -22,15 +22,15 @@ async function execute (message, args, db) {
 	
 	if (isNaN(capacity) || capacity <= 0) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle("Queue capacity needs to be a positive number.")
+			.setTitle("Oops! Queue capacity needs to be a positive number.")
 			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 	
-	// limit name length to 25 characters
-	if (name.length > 25) {
+	// limit name length to 20 characters
+	if (name.length > 20) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle("Name is too long. Max 25 chars")
+			.setTitle("Oops! Name is too long. Max 25 chars")
 			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
@@ -46,7 +46,7 @@ async function execute (message, args, db) {
 	if ( findarr.length != 0 ) {
 		console.log("[ INFO ]  > Duplicate name. Aborting.");
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle("A queue with that name already exists. Please choose a different name.")
+			.setTitle("Oops! A queue with that name already exists. Please choose a different name.")
 			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
@@ -58,7 +58,7 @@ async function execute (message, args, db) {
 		{ id: message.author,      allow: ['SEND_MESSAGES'], }, // queue host
 		{ id: queueAdminRoleID,    allow: ['SEND_MESSAGES'], }, // queue admin role
 	];
-	queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID, permissionOverwrites: permissions} );
+	const queueChannel = await message.guild.createChannel(name, {type: 'text', parent: queueCategoryID, permissionOverwrites: permissions} );
 	
 	const queueEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setTitle(`**Queue \`${name}\`**`)
@@ -71,7 +71,7 @@ async function execute (message, args, db) {
 		name: name,
 		host: message.author.id,
 		capacity: capacity,
-		available: capacity,
+		taken: 0,
 		users: []
 	});
 	

@@ -1,13 +1,13 @@
-const { prefix, colors } = require('../config.json');
+const { colors } = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
 	
-	name: 'end',
-	aliases: ['delete', 'close'],
+	name: 'close',
+	aliases: ['delete', 'end'],
 	
 	usage: '<queue name>',
-	description: 'Ends queue and deletes its channel.',
+	description: 'Ends queue with name <queue name> (if found).',
 	
 	cooldown: 5,
 	minArgs: 1,
@@ -30,7 +30,7 @@ async function execute (message, args, db) {
 	if ( findarr.length == 0 ) {
 		console.log("[ INFO ]  > No queue by that name. Aborting.");
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
-			.setTitle(`Could not find queue \`${name}\`.`)
+			.setTitle(`Oops! Could not find queue \`${name}\`. Did you type it right?`)
 		return message.channel.send(errEmbed);
 	}
 	
