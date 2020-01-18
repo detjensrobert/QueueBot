@@ -6,16 +6,16 @@ const client = new Discord.Client();
 const fs = require('fs');
 
 // grab settings from file
-const { token } = require('./token.json')
-const { prefix, colors, middlemanRoleID, restrictToChannels } = require('./config.json')
+const { token } = require('./token.json');
+const { prefix, colors, middlemanRoleID, restrictToChannels } = require('./config.json');
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
-const mdbconf = require('./mongodb_config.json'); // mdbconf == mongoconfig
+const mdbconf = require('./mongodb_config.json');
 mdbconf.port = mdbconf.port || "27017";
-//~ const mongoURL = `mongodb://${mdbconf.user}:${mdbconf.pass}@${mdbconf.host}:${mdbconf.port}/`;
+// ~ const mongoURL = `mongodb://${mdbconf.user}:${mdbconf.pass}@${mdbconf.host}:${mdbconf.port}/`;
 const mongoURL = `mongodb://${mdbconf.host}:${mdbconf.port}/`;
-var db;
+let db;
 
 // import commands from dir
 client.commands = new Discord.Collection();
@@ -24,7 +24,7 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 for (const file of commandFiles) {
 	const command = require("./commands/" + file);
 	client.commands.set(command.name, command);
-	
+
 	console.log("[ START ] Added command: " + command.name);
 }
 
@@ -39,44 +39,44 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-		
+
 	// ignore messages that dont start with a valid prefix
 	if (!message.content.startsWith(prefix)) { return; }
-	
+
 	// ignore bot messages
 	if (message.author.bot) { return; }
-	
+
 	// ignore DMs
 	if (message.channel.type !== "text") { return; }
-	
+
 	// ignore messages not in specified channels, if given
-	if (restrictToChannels && !restrictToChannels.includes(message.channel.id) ) { return; }
-	
+	if (restrictToChannels && !restrictToChannels.includes(message.channel.id)) { return; }
+
 	// turn message into array
 	const args = message.content.trim().slice(prefix.length).split(/ +/);
-	
+
 	// pull first word (the command) out
 	const commandName = args.shift().toLowerCase();
 
 	// get command from name or alias
-	const command = client.commands.get(commandName) || 
-					client.commands.find( cmd => cmd.aliases && cmd.aliases.includes(commandName) );
-	
+	const command = client.commands.get(commandName) ||
+					client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
 	if (!command) return;
-	
-	
+
+
 	// == CHECK OPTIONS ==
-	
+
 	// if middleman only
 	if (command.mmOnly && !message.member.roles.has(middlemanRoleID)) { return; }
-	
+
 	if (command.minArgs && args.length < command.minArgs) {
 		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
 			.setTitle("Oops! Are you missing something?")
 			.addField("Usage:", `\`${prefix}${command.name} ${command.usage}\``);
 		return message.channel.send(errEmbed);
 	}
-	
+
 	// == COOLDOWN HANDLING ==
 	if (command.cooldown) {
 		if (!cooldowns.has(command.name)) {
@@ -89,7 +89,7 @@ client.on('message', message => {
 			const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
 			if (now < expirationTime) {
-				const timeLeft = (expirationTime - now) / 1000;			
+				const timeLeft = (expirationTime - now) / 1000;
 				const errEmbed = new Discord.RichEmbed().setColor(colors.error)
 					.setTitle(`Wait ${timeLeft.toFixed(1)} more second(s) to call this again.`);
 				return message.channel.send(errEmbed);
@@ -98,7 +98,7 @@ client.on('message', message => {
 		timestamps.set(message.author.id, now);
 		setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 	}
-	
+
 	// ==============
 	// ACTUAL COMMAND CALL
 	command.execute(message, args, db)
@@ -106,17 +106,17 @@ client.on('message', message => {
 			console.error("[ ERROR ] " + err);
 			message.reply('there was an error trying to execute that command!');
 		});
-	
+
 });
 
 // Login to database and Discord
 // but only login to Discord once db is ready
 console.log(`[ START ] Connecting to MongoDB ( ${mongoURL} )`);
-MongoClient.connect(mongoURL, function (err, mongoclient) {
+MongoClient.connect(mongoURL, function(err, mongoclient) {
 	if (err) { throw err; }
-	
+
 	db = mongoclient.db(mdbconf.dbname);
-	
+
 	console.log("[ START ] Logging in to Discord...");
 	client.login(token);
 });

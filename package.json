@@ -5,9 +5,9 @@
   "main": "queuebot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart": "npx eslint .",
     "start": "node queuebot.js",
-    "fix": "npx eslint . --fix"
+    "fix": "npx eslint . --fix",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
