@@ -39,7 +39,7 @@ async function execute(message, args, db) {
 	message.guild.channels.get(channelID).delete();
 
 	if (findarr[0].random) {
-		message.guild.channels.get(queueListChannelID).messages.fetch(findarr[0].listMsgID).then(msg => msg.delete());
+		message.guild.channels.get(queueListChannelID).fetchMessage(findarr[0].listMsgID).then(msg => msg.delete());
 	}
 
 	// delete from database

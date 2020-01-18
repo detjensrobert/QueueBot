@@ -66,7 +66,7 @@ async function execute(message, args, db) {
 	const listEmbed = new Discord.RichEmbed().setColor(colors.info)
 		.setTitle(`**${name}**`)
 		.setDescription("**Host**: " + message.author)
-		.addField("Capacity: " + capacity, "React with <:pokeball:667267492598513684> to join the queue");
+		.addField("Capacity: " + capacity, "React with <:pokeball:667267492598513684> to join the queue.");
 
 	listMsg = await message.guild.channels.get(queueListChannelID).send(listEmbed);
 	listMsg.react(message.guild.emojis.get('667267492598513684'));
@@ -112,14 +112,59 @@ async function execute(message, args, db) {
 
 }
 
-// Use raw events to grab reaction add/removes since builtin collector doesnt track users
+// Reaction event handlers from main file
+async function reactAdd(reaction, user, client, db) {
 
+	// ignore reacts on messages not in #queue-list
+	if (reaction.message.channel.id != queueListChannelID) return;
 
-// ~ // create reaction handler
-// ~ const Filter = (reaction, user) => reaction.emoji.id == '667267492598513684' && user.id != message.client.user.id;
-// ~ const Collector = listMsg.createReactionCollector(Filter, {max: capacity});
-// ~ Collector.on('collect', reaction => onCollect(message, reaction, db) );
-// ~ Collector.on('end',    collected => onEnd(message, collected, db) );
+	// look for queue in db
+	const queueDB = db.collection('queues');
+	const queueArr = await queueDB.find({ listMsgID: reaction.message.id }).toArray();
+
+	// if queue not found, abort (reaction was not on a valid queuelist message)
+	if (queueArr.length == 0) return;
+
+	const queue = queueArr[0];
+	
+	console.log(`[ INFO ] Adding user to random queue pool "${queue.name}"`);
+
+	// decrease available queue spots
+	queueDB.updateOne({ listMsgID: reaction.message.id }, { $inc: { taken: 1 }, $push: { users: user.id } });
+
+	// confirmation message
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+		.setTitle(`Added you to queue \`${queue.name}\` in server ${reaction.message.guild.name}.`)
+		.setDescription(`You're in position ${queue.taken + 1} of ${queue.capacity}.`);
+	user.send(replyEmbed);
+
+}
+async function reactRemove(reaction, user, client, db) {
+	
+	// ignore reacts on messages not in #queue-list
+	if (reaction.message.channel.id != queueListChannelID) return;
+
+	// look for queue in db
+	const queueDB = db.collection('queues');
+	const queueArr = await queueDB.find({ listMsgID: reaction.message.id }).toArray();
+
+	// if queue not found, abort (reaction was not on a valid queuelist message)
+	if (queueArr.length == 0) return;
+
+	const queue = queueArr[0];
+	
+	console.log(`[ INFO ] Removing user from random queue pool "${queue.name}"`);
+	
+	// increase available queue spots
+	queueDB.updateOne({ listMsgID: reaction.message.id }, { $inc: { taken: -1 }, $pull: { users: user.id } });
+	
+	// confirmation message
+	const replyEmbed = new Discord.RichEmbed().setColor(colors.error)
+		.setTitle(`Removed you from queue \`${queue.name}\` in server ${reaction.message.guild.name}.`)
+	user.send(replyEmbed);
+}
 
 module.exports = options;
 module.exports.execute = execute;
+module.exports.reactAdd = reactAdd;
+module.exports.reactRemove = reactRemove;
