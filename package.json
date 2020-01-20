@@ -5,7 +5,9 @@
   "main": "queuebot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node .",
+    "start": "pm2 start . --name QueueBot",
+    "stop": "pm2 stop . --name QueueBot",
+    "restart": "pm2 restart . --name QueueBot",
     "fix": "npx eslint . --fix",
     "lint": "npx eslint ."
   },
@@ -21,7 +23,8 @@
   "homepage": "https://github.com/detjensrobert/QueueBot#readme",
   "dependencies": {
     "discord.js": "^11.5.1",
-    "mongodb": "^3.3.5"
+    "mongodb": "^3.3.5",
+    "pm2": "^4.2.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0"

@@ -1,4 +1,4 @@
-const { queueListChannelID, colors } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -12,7 +12,7 @@ const options = {
 	cooldown: 5,
 	minArgs: 1,
 
-	mmOnly: true,
+	roleRestrict: "middleman",
 };
 
 async function execute(message, args, db) {
@@ -29,7 +29,7 @@ async function execute(message, args, db) {
 	// if name not found, abort
 	if (findarr.length == 0) {
 		console.log("[ INFO ]  > No queue by that name. Aborting.");
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle(`Oops! Could not find queue \`${name}\`. Did you type it right?`);
 		return message.channel.send(errEmbed);
 	}
@@ -39,7 +39,7 @@ async function execute(message, args, db) {
 	message.guild.channels.get(channelID).delete();
 
 	if (findarr[0].random) {
-		message.guild.channels.get(queueListChannelID).fetchMessage(findarr[0].listMsgID).then(msg => msg.delete());
+		message.guild.channels.get(config.queueListChannelID).fetchMessage(findarr[0].listMsgID).then(msg => msg.delete());
 	}
 
 	// delete from database
@@ -47,7 +47,7 @@ async function execute(message, args, db) {
 
 	console.log("[ INFO ]  > Queue deleted.");
 
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.success)
 		.setTitle(`Queue \`${name}\` deleted.`);
 	message.channel.send(replyEmbed);
 }

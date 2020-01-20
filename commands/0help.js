@@ -1,4 +1,4 @@
-const { prefix, colors, middlemanRoleID } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -25,46 +25,31 @@ async function execute(message) {
 
 	const commands = message.client.commands;
 
-	const helpEmbed = new Discord.RichEmbed().setColor(colors.info)
+	const helpEmbed = new Discord.RichEmbed().setColor(config.colors.info)
 		.setAuthor("QueueBot Help", message.client.user.displayAvatarURL)
 		.setFooter("QueueBot created by WholeWheatBagels", 'https://cdn.discordapp.com/avatars/197460469336899585/efb49d183b81f30c42b25517e057a704.png');
 
 	commands.forEach((cmd) => {
 
-		//               .. only show middleman-restricted commands if in a server and they have the middleman role
-		if (!cmd.mmOnly || (cmd.mmOnly && message.guild && message.member.roles.has(middlemanRoleID))) {
+		//               .. only show role-restricted commands if member is in a server and they have that role
+		if (!cmd.roleRestrict || (cmd.roleRestrict && message.guild && message.member.roles.has(config.roles[`${cmd.roleRestrict}`]))) {
 
 			let helpStr = cmd.description;
 
 			if (cmd.usage) {
-
-				// if multiple usages
-				if (Array.isArray(cmd.usage)) {
-					cmd.usage.forEach(usage => helpStr += `\n\`${prefix}${cmd.name} ${usage}\``);
-				}
-				else {
-					helpStr += `\n\`${prefix}${cmd.name} ${cmd.usage}\``;
-				}
-
+				helpStr += `\n\`${config.prefix}${cmd.name} ${cmd.usage}\``;
 			}
 			else {
-				helpStr += `\n\`${prefix}${cmd.name}\``;
+				helpStr += `\n\`${config.prefix}${cmd.name}\``;
 			}
 
 			if (cmd.example) {
-				helpStr += "\nExamples:";
-
-				// if multiple examples
-				if (Array.isArray(cmd.example)) {
-					cmd.example.forEach(example => helpStr += `\n- \`${prefix}${cmd.name} ${example}\``);
-				}
-				else {
-					helpStr += `\n- \`${prefix}${cmd.name} ${cmd.example}\``;
-				}
+				helpStr += `\nExample:\n- \`${config.prefix}${cmd.name} ${cmd.example}\``;
 			}
 
-			if (cmd.mmOnly) {
-				helpStr += "\n*(Middleman restricted)*";
+			if (cmd.roleRestrict) {
+				const roleID = config.roles[`${cmd.roleRestrict}`];
+				helpStr += `\n*(Restricted to @${ message.guild.roles.get(roleID).name } only)*`;
 			}
 
 			helpEmbed.addField(`**${cmd.name}**` + (cmd.aliases ? ", " + cmd.aliases.join(", ") : ""), helpStr);

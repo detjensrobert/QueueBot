@@ -11,7 +11,8 @@
 	"queueCategoryID": "651614725804654629",
 	"queueListChannelID": "667255470414626816",
 	
-	"middlemanRoleID": "651633834630053889",
-	
-	"queueAdminRoleIDs": ["652410392038866944", "667242521436487691"]
+	"roles": {
+		"middleman": "651633834630053889",
+		"admin": "652410392038866944"
+	}
 }

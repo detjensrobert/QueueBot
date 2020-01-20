@@ -1,7 +1,8 @@
-const { colors } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
+
 	name: 'list',
 	aliases: ['l', 'ls', 'all', 'a'],
 
@@ -18,7 +19,7 @@ async function execute(message, args, db) {
 	const queueDB = db.collection('queues');
 	const findarr = await queueDB.find().toArray();
 
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.info)
+	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.info)
 		.setTitle(`Currently ${findarr.length} active queues.`);
 
 	console.log("[ INFO ]  > " + findarr.length + " currently active.");

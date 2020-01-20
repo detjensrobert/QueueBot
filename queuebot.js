@@ -7,7 +7,7 @@ const fs = require('fs');
 
 // grab settings from file
 const { token } = require('./token.json');
-const { prefix, colors, middlemanRoleID, restrictToChannels } = require('./config.json');
+const config = require('./config.json');
 
 // connect to mongodb server
 const MongoClient = require('mongodb').MongoClient;
@@ -41,7 +41,7 @@ client.once('ready', () => {
 client.on('message', message => {
 
 	// ignore messages that dont start with a valid prefix
-	if (!message.content.startsWith(prefix)) { return; }
+	if (!message.content.startsWith(config.prefix)) { return; }
 
 	// ignore bot messages
 	if (message.author.bot) { return; }
@@ -50,10 +50,10 @@ client.on('message', message => {
 	if (message.channel.type !== "text") { return; }
 
 	// ignore messages not in specified channels, if given
-	if (restrictToChannels && !restrictToChannels.includes(message.channel.id)) { return; }
+	if (config.restrictToChannels && !config.restrictToChannels.includes(message.channel.id)) { return; }
 
 	// turn message into array
-	const args = message.content.trim().slice(prefix.length).split(/ +/);
+	const args = message.content.trim().slice(config.prefix.length).split(/ +/);
 
 	// pull first word (the command) out
 	const commandName = args.shift().toLowerCase();
@@ -65,15 +65,17 @@ client.on('message', message => {
 	if (!command) return;
 
 
-	// == CHECK OPTIONS ==
+	//   ===   CHECK COMMAND OPTIONS   ===
 
-	// if middleman only
-	if (command.mmOnly && !message.member.roles.has(middlemanRoleID)) { return; }
 
+	// role restricted
+	if (command.roleRestrict && !message.member.roles.has(config.roles[`${command.roleRestrict}`])) { return; }
+
+	// argument count
 	if (command.minArgs && args.length < command.minArgs) {
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! Are you missing something?")
-			.addField("Usage:", `\`${prefix}${command.name} ${command.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${command.name} ${command.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 
@@ -90,7 +92,7 @@ client.on('message', message => {
 
 			if (now < expirationTime) {
 				const timeLeft = (expirationTime - now) / 1000;
-				const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+				const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 					.setTitle(`Wait ${timeLeft.toFixed(1)} more second(s) to call this again.`);
 				return message.channel.send(errEmbed);
 			}
@@ -153,7 +155,7 @@ client.on('raw', packet => {
 
 // Login to database and Discord
 // but only login to Discord once db is ready
-console.log(`[ START ] Connecting to MongoDB ( ${mongoURL} )`);
+console.log(`[ START ] Connecting to MongoDB... ( ${mongoURL} )`);
 MongoClient.connect(mongoURL, function(err, mongoclient) {
 	if (err) { throw err; }
 

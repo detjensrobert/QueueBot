@@ -1,4 +1,4 @@
-const { colors } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -28,7 +28,7 @@ async function execute(message, args, db) {
 
 	console.log("[ INFO ]  > Profile set to " + value);
 
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.success)
 		.setTitle(`Profile name set.`)
 		.setDescription(`**Switch profile**: \`${profile || "[no data]"}\` \n**IGN**: \`${ign || "[no data]"}\` \n**Friendcode**: \`${fc || "[no data]"}\``);
 	return message.channel.send(replyEmbed);

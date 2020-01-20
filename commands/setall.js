@@ -1,4 +1,4 @@
-const { prefix, colors } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -18,9 +18,9 @@ async function execute(message, args, db) {
 	const values = args.join(' ').split(' | ');
 
 	if (values.length != 3) {
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! Could not parse what you're trying to set.")
-			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 
@@ -30,9 +30,9 @@ async function execute(message, args, db) {
 	const fcRegex = new RegExp(/(SW-)?[0-9]{4}-[0-9]{4}-[0-9]{4}/);
 	if (!(fcRegex.test(values[2]))) {
 		console.log("[ INFO ]  > Bad friendcode. Aborting.");
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! Could not parse friendcode. Is it formatted correctly?")
-			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 	if (values[2].length == 14) { values[2] = "SW-" + values[2]; }
@@ -43,7 +43,7 @@ async function execute(message, args, db) {
 
 	console.log("[ INFO ]  > Userdata set to " + values);
 
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.success)
 		.setTitle(`Info set.`)
 		.setDescription(`**Switch profile**: \`${values[0] || "[no data]"}\` \n**IGN**: \`${values[1] || "[no data]"}\` \n**Friendcode**: \`${values[2] || "[no data]"}\``);
 	return message.channel.send(replyEmbed);

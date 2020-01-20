@@ -1,4 +1,4 @@
-const { prefix, queueCategoryID, queueAdminRoleIDs, colors } = require('../config.json');
+const config = require('../config.json');
 const Discord = require('discord.js');
 
 const options = {
@@ -12,7 +12,7 @@ const options = {
 	cooldown: 5,
 	minArgs: 2,
 
-	mmOnly: true,
+	roleRestrict: "middleman",
 };
 
 async function execute(message, args, db) {
@@ -21,17 +21,17 @@ async function execute(message, args, db) {
 	const name = args.join('-').toLowerCase();
 
 	if (isNaN(capacity) || capacity <= 0) {
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! Queue capacity needs to be a positive number.")
-			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 
 	// limit name length to 20 characters
 	if (name.length > 20) {
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! Name is too long. Max 25 chars")
-			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 
@@ -45,25 +45,27 @@ async function execute(message, args, db) {
 	// if name already in use, abort
 	if (findarr.length != 0) {
 		console.log("[ INFO ]  > Duplicate name. Aborting.");
-		const errEmbed = new Discord.RichEmbed().setColor(colors.error)
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
 			.setTitle("Oops! A queue with that name already exists. Please choose a different name.")
-			.addField("Usage:", `\`${prefix}${options.name} ${options.usage}\``);
+			.addField("Usage:", `\`${config.prefix}${options.name} ${options.usage}\``);
 		return message.channel.send(errEmbed);
 	}
 
 	// create channel w/ perms (only allow needed people access to channel)
 	const permissions = [
-		{ id: message.client.user, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }, // the bot
-		{ id: message.author, allow: ['VIEW_CHANNEL'] }, // queue host
-		{ id: message.guild.id, deny: ['VIEW_CHANNEL'] }, // @everyone
+		{ id: message.client.user, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }, // the bot can send
+		{ id: message.author, allow: ['VIEW_CHANNEL'] }, // queue host can see
+		{ id: message.guild.id, deny: ['VIEW_CHANNEL'] }, // @everyone cannot
+		{ id: config.roles.admin, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }, // admin role can send
 	];
-	queueAdminRoleIDs.forEach(role => {		// queue admin roles
-		permissions.push({ id: role, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+
+	const queueChannel = await message.guild.createChannel(name, {
+		type: 'text',
+		parent: config.queueCategoryID,
+		permissionOverwrites: permissions,
 	});
 
-	const queueChannel = await message.guild.createChannel(name, { type: 'text', parent: queueCategoryID, permissionOverwrites: permissions });
-
-	const queueEmbed = new Discord.RichEmbed().setColor(colors.info)
+	const queueEmbed = new Discord.RichEmbed().setColor(config.colors.info)
 		.setTitle(`**Queue \`${name}\`**`)
 		.addField(`Capacity:  \` ${capacity} \``, `Host: ${message.author}`);
 	queueChannel.send(queueEmbed);
@@ -78,12 +80,10 @@ async function execute(message, args, db) {
 		users: [],
 	});
 
-	const replyEmbed = new Discord.RichEmbed().setColor(colors.success)
+	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.success)
 		.setTitle(`Queue \`${name}\` created.`)
 		.setDescription(`Channel: ${queueChannel}`);
 	message.channel.send(replyEmbed);
-
-	console.log("[ INFO ]  > Queue and channel created. ");
 
 	return;
 }
