@@ -66,10 +66,10 @@ async function execute(message, args, db) {
 	const listEmbed = new Discord.RichEmbed().setColor(config.colors.info)
 		.setTitle(`**${name}**`)
 		.setDescription("**Host**: " + message.author)
-		.addField("`0`/`" + capacity + "` spots taken", "React with <:pokeball:667267492598513684> to join the queue.");
+		.addField("`0`/`" + capacity + "` spots taken", `React with ${config.reactEmoji} to join the queue.`);
 
 	listMsg = await message.guild.channels.get(config.queueListChannelID).send(listEmbed);
-	listMsg.react(message.guild.emojis.get('667267492598513684'));
+	listMsg.react(message.guild.emojis.get(config.reactEmoji.slice(-19, -1))); // extract emoji id from full string
 
 	// create channel w/ perms (only allow needed people access to channel)
 	const permissions = [
@@ -125,9 +125,6 @@ async function reactAdd(reaction, user, client, db) {
 	if (queueArr.length == 0) return;
 
 	const queue = queueArr[0];
-
-	console.log(`[ INFO ] Adding user to random queue pool "${queue.name}"`);
-
 	// remove new reactions if queue is full and dm user that that queue is full
 	if (queue.taken >= queue.capacity) {
 		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
@@ -137,9 +134,43 @@ async function reactAdd(reaction, user, client, db) {
 		return;
 	}
 
+	// look for userdata in db
+	const userdataDB = db.collection('userdata');
+	const userArr = await userdataDB.find({ userID: user.id }).toArray();
+
+	// if userdata not found, abort
+	if (userArr.length == 0) {
+		console.log("[ INFO ]  > User hasn't added info. Aborting.");
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
+			.setTitle("Oops! You haven't added your info yet.")
+			.setDescription(`Use \`${config.prefix}set\` to set that up`);
+		return user.send(errEmbed);
+	}
+	if (!(userArr[0].fc && userArr[0].ign && userArr[0].profile)) {
+		console.log("[ INFO ]  > User hasn't added info. Aborting.");
+		const errEmbed = new Discord.RichEmbed().setColor(config.colors.error)
+			.setTitle("Oops! You haven't added all of your info yet.")
+			.setDescription(`Make sure you \`${config.prefix}set\` all three.`);
+		return user.send(errEmbed);
+	}
+
+
+	console.log(`[ INFO ] Adding user to random queue pool "${queue.name}"`);
+
 	// decrease available queue spots
 	queueDB.updateOne({ listMsgID: reaction.message.id }, { $inc: { taken: 1 }, $push: { users: user.id } });
 	queue.taken++;
+
+	// make channel visible to user
+	reaction.message.guild.channels.get(queue.channelID).overwritePermissions(user, { 'VIEW_CHANNEL': true, 'SEND_MESSAGES': true });
+
+	// post info to channel
+	const info = userArr[0];
+
+	const queueEmbed = new Discord.RichEmbed().setColor(config.colors.success)
+		.setDescription(`\`${queue.taken}/${queue.capacity}\` ${user} \n**Switch profile**: \`${info.profile}\` \n**IGN**: \`${info.ign}\` \n**Friendcode**: \`${info.fc}\``);
+	reaction.message.guild.channels.get(queue.channelID).send(queueEmbed);
+
 
 	// confirmation message
 	const replyEmbed = new Discord.RichEmbed().setColor(config.colors.success)
@@ -148,10 +179,12 @@ async function reactAdd(reaction, user, client, db) {
 	user.send(replyEmbed);
 
 	// edit list message to show new capacity / if its full
-	const capacityStr = "React with <:pokeball:667267492598513684> to join the queue.";
-
-	if (queue.taken == queue.capacity) {
-		"Queue is full!";
+	let capacityStr = `React with ${config.reactEmoji} to join the queue.`;
+	
+	// if queue is now full, clear reactions
+	if (queue.taken >= queue.capacity) {
+		capacityStr = "Queue is full!";
+		reaction.message.clearReactions();
 	}
 
 	const newListEmbed = new Discord.RichEmbed().setColor(config.colors.info)
@@ -161,6 +194,8 @@ async function reactAdd(reaction, user, client, db) {
 	reaction.message.edit(newListEmbed);
 
 }
+
+
 async function reactRemove(reaction, user, client, db) {
 
 	// ignore reacts on messages not in #queue-list
@@ -174,6 +209,9 @@ async function reactRemove(reaction, user, client, db) {
 	if (queueArr.length == 0) return;
 
 	const queue = queueArr[0];
+
+	// ignore reacts if queue is full, but only if the user isnt in the queue
+	if (queue.taken >= queue.capacity && !queue.users.includes(user.id)) return;
 
 	console.log(`[ INFO ] Removing user from random queue pool "${queue.name}"`);
 
@@ -194,6 +232,7 @@ async function reactRemove(reaction, user, client, db) {
 		.setDescription("**Host**: " + queue.host)
 		.addField(`\`${queue.taken}\` / \`${queue.capacity}\` spots taken`, capacityStr);
 	reaction.message.edit(newListEmbed);
+
 }
 
 module.exports = options;

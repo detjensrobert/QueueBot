@@ -24,6 +24,16 @@ Queue channels are visible to everyone, but only QueueBot, the queue host, queue
 	
 	The resultant channel is only visible to the queue members and a queue admin role.
 
+- `!queue random <queue-name> <length>`
+
+	Creates a new *random* queue with the given name and length, and a new channel `#queue-<queue-name>` under a configured category.
+	
+	Since this is a random queue, a message is sent to the `#queue-list` (or configured) channel. Users react to this message to join.
+
+ 	Can only be called by authorised users (with a specified role e.g. Middlemen).
+	
+	The resultant channel is only visible to the queue members and a queue admin role.
+
 - `!queue join <queue-name>`
 
 	Adds user to queue `<queue-name>` (if it exists), and posts their info in that queue's channel.
@@ -77,3 +87,5 @@ MongoDB settings go in `mongodb_config.json`. Create if not present:
 }
 ```
 The bot will use collections `queues` and `userdata`.
+
+Make sure the bot has react permissions in the configured `#queue-list` channel!
